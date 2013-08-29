@@ -9,7 +9,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <blc.version>3.0.1-SNAPSHOT</blc.version>
+        <blc.version>3.0.0-SNAPSHOT</blc.version>
     </properties>
     <scm>
         <connection>scm:git:git@github.com:BroadleafCommerce/basic-inventory.git</connection>

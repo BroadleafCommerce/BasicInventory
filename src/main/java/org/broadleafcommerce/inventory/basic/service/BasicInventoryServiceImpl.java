@@ -13,50 +13,150 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.broadleafcommerce.inventory.basic.service;
 
+import org.broadleafcommerce.core.catalog.domain.Sku;
+import org.broadleafcommerce.core.catalog.service.CatalogService;
+import org.broadleafcommerce.core.inventory.service.type.InventoryType;
 import org.broadleafcommerce.inventory.basic.dao.BasicInventoryDao;
-import org.springframework.stereotype.Service;
+import org.broadleafcommerce.inventory.basic.domain.ext.BasicInventoryContainer;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
-@Service("blBasicInventoryService")
-@Transactional("blTransactionManager")
 public class BasicInventoryServiceImpl implements BasicInventoryService {
 
     @Resource(name = "blBasicInventoryDao")
     protected BasicInventoryDao inventoryDao;
     
+    @Resource(name = "blCatalogService")
+    protected CatalogService catalogService;
+
     @Override
-    public boolean isQuantityAvailable(Long skuId, int quantity) {
-        if (quantity < 1) {
-            return true;
+    @Transactional("blTransactionManager")
+    public Integer retrieveQuantityAvailable(Long skuId) {
+        Sku sku = catalogService.findSkuById(skuId);
+        if (sku != null && sku.isAvailable() && sku.isActive()) {
+            if (sku.getInventoryType() == null || sku.getInventoryType().equals(InventoryType.NONE)) {
+                return null;
+            }
+            return inventoryDao.readInventory(skuId);
         }
-        int inventory = inventoryDao.readInventory(skuId);
-        if (inventory >= quantity) {
-            return true;
+        return 0;
+    }
+
+    @Override
+    @Transactional("blTransactionManager")
+    public Map<Long, Integer> retrieveQuantitiesAvailable(Set<Long> skuIds) {
+        Map<Long, Integer> inventories = inventoryDao.readInventory(skuIds);
+        HashMap<Long, Integer> out = new HashMap<Long, Integer>();
+        for (Long key : skuIds) {
+            Sku sku = catalogService.findSkuById(key);
+            if (sku != null && sku.isAvailable() && sku.isActive()) {
+                if (InventoryType.BASIC.equals(sku.getInventoryType())) {
+                    out.put(key, inventories.get(key));
+                } else if (sku.getInventoryType() == null || InventoryType.NONE.equals(sku.getInventoryType())) {
+                    out.put(key, null);
+                } else {
+                    out.put(key, 0);
+                }
+            } else {
+                out.put(key, 0);
+            }
+        }
+
+        return out;
+    }
+
+    @Override
+    @Transactional("blTransactionManager")
+    public boolean isAvailable(Long skuId, int quantity) {
+        if (quantity < 1) {
+            throw new IllegalArgumentException("Quantity " + quantity + " is not valid. Must be greater than zero.");
+        }
+        Sku sku = catalogService.findSkuById(skuId);
+        if (sku != null && sku.isAvailable() && sku.isActive()) {
+            if (InventoryType.BASIC.equals(sku.getInventoryType())) {
+                Integer quantityAvailable = retrieveQuantityAvailable(skuId);
+                if (quantityAvailable == null || quantity <= quantityAvailable) {
+                    return true;
+                }
+            } else if (sku.getInventoryType() == null || InventoryType.NONE.equals(sku.getInventoryType())) {
+                return true;
+            }
         }
         return false;
     }
 
     @Override
-    public int retrieveQuantityAvailable(Long skuId) {
-        return inventoryDao.readInventory(skuId);
+    @Transactional(value = "blTransactionManager", rollbackFor = { BasicInventoryUnavailableException.class })
+    public void decrementInventory(Long skuId, int quantity) throws BasicInventoryUnavailableException {
+        if (quantity < 1) {
+            throw new IllegalArgumentException("Quantity " + quantity + " is not valid. Must be greater than zero.");
+        }
+        Sku sku = catalogService.findSkuById(skuId);
+        if (sku.isAvailable() && sku.isActive() && InventoryType.BASIC.equals(sku.getInventoryType())) {
+            if (sku instanceof BasicInventoryContainer) {
+                BasicInventoryContainer container = (BasicInventoryContainer) sku;
+                Integer inventoryAvailable = retrieveQuantityAvailable(skuId);
+                if (inventoryAvailable == null) {
+                    return;
+                }
+                if (inventoryAvailable < quantity) {
+                    throw new BasicInventoryUnavailableException(
+                            "There was not enough inventory to fulfill this request.", skuId, quantity, inventoryAvailable);
+                }
+                int newInventory = inventoryAvailable - quantity;
+                container.setQuantityAvailable(newInventory);
+                catalogService.saveSku(sku);
+            }
+        }
     }
 
     @Override
-    public void decrementInventory(Long skuId, int quantity) {
-        int inventory = inventoryDao.readInventoryForUpdate(skuId);
-        int newInventory = inventory - quantity;
-        inventoryDao.updateInventory(skuId, newInventory);
+    @Transactional(value = "blTransactionManager", rollbackFor = { BasicInventoryUnavailableException.class })
+    public void decrementInventory(Map<Long, Integer> skuQuantities) throws BasicInventoryUnavailableException {
+        Set<Long> keys = skuQuantities.keySet();
+        for (Long key : keys) {
+            Integer quantity = skuQuantities.get(key);
+            if (quantity == null) {
+                throw new IllegalArgumentException("Quantity was null for skuId " + key);
+            }
+            decrementInventory(key, quantity);
+        }
     }
 
     @Override
+    @Transactional("blTransactionManager")
     public void incrementInventory(Long skuId, int quantity) {
-        int inventory = inventoryDao.readInventoryForUpdate(skuId);
-        int newInventory = inventory + quantity;
-        inventoryDao.updateInventory(skuId, newInventory);
+        if (quantity < 1) {
+            throw new IllegalArgumentException("Quantity " + quantity + " is not valid. Must be greater than zero.");
+        }
+        Sku sku = catalogService.findSkuById(skuId);
+        if (sku instanceof BasicInventoryContainer && InventoryType.BASIC.equals(sku.getInventoryType())) {
+            BasicInventoryContainer container = (BasicInventoryContainer) sku;
+            int inventoryAvailable = retrieveQuantityAvailable(skuId);
+            int newInventory = inventoryAvailable + quantity;
+            container.setQuantityAvailable(newInventory);
+            catalogService.saveSku(sku);
+        }
     }
 
+    @Override
+    @Transactional("blTransactionManager")
+    public void incrementInventory(Map<Long, Integer> skuQuantities) {
+        Set<Long> keys = skuQuantities.keySet();
+        for (Long key : keys) {
+            Integer quantity = skuQuantities.get(key);
+            if (quantity == null) {
+                throw new IllegalArgumentException("Quantity was null for skuId " + key);
+            }
+            incrementInventory(key, quantity);
+        }
+    }
 }

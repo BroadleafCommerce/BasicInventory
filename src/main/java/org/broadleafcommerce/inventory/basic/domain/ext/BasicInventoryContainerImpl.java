@@ -21,14 +21,16 @@ import javax.persistence.Column;
 public class BasicInventoryContainerImpl implements BasicInventoryContainer {
 
     @Column(name = "BLC_QUANTITY_AVAILABLE")
-    protected Integer quantityAvailable = 0;
+    protected Integer basicQuantityAvailable = 0;
 
+    @Override
     public void setQuantityAvailable(Integer quantityAvailable) {
-        this.quantityAvailable = quantityAvailable;
+        this.basicQuantityAvailable = quantityAvailable;
     }
 
+    @Override
     public Integer getQuantityAvailable() {
-        return this.quantityAvailable;
+        return this.basicQuantityAvailable;
     }
 
 }

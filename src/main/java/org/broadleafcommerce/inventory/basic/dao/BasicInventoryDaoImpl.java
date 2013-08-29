@@ -16,13 +16,17 @@
 package org.broadleafcommerce.inventory.basic.dao;
 
 import org.broadleafcommerce.common.persistence.EntityConfiguration;
-import org.springframework.stereotype.Repository;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
-@Repository("blBasicInventoryDao")
 public class BasicInventoryDaoImpl implements BasicInventoryDao {
 
     @PersistenceContext(unitName = "blPU")
@@ -33,20 +37,37 @@ public class BasicInventoryDaoImpl implements BasicInventoryDao {
 
     @Override
     public int readInventory(Long skuId) {
-        // TODO Auto-generated method stub
+        Query query = em.createNamedQuery("BC_BASIC_INVENTORY_READ_INVENTORY_FOR_SKU");
+        query.setParameter("skuId", skuId);
+        @SuppressWarnings("unchecked")
+        List<Integer> results = query.getResultList();
+        if (results != null && !results.isEmpty()) {
+            Integer inventory = results.get(0);
+            if (inventory != null) {
+                return results.get(0);
+            }
+        }
         return 0;
     }
 
     @Override
-    public int readInventoryForUpdate(Long skuId) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
+    public Map<Long, Integer> readInventory(Set<Long> skuIds) {
+        HashMap<Long, Integer> out = new HashMap<Long, Integer>();
+        Query query = em.createNamedQuery("BC_BASIC_INVENTORY_READ_INVENTORY_FOR_SKUS");
+        query.setParameter("skuIds", skuIds);
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+        for (Object[] result : results) {
+            out.put((Long) result[0], (Integer) result[1]);
+        }
 
-    @Override
-    public void updateInventory(Long skuId, int quanity) {
-        // TODO Auto-generated method stub
+        for (Long skuId : skuIds) {
+            if (out.get(skuId) == null) {
+                out.put(skuId, 0);
+            }
+        }
 
+        return out;
     }
 
 }
