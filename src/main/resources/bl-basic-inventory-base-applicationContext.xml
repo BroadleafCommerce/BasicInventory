@@ -65,4 +65,15 @@
         </property>
     </bean>
     
+    <bean id="messageSource" class="org.broadleafcommerce.common.util.BroadleafMergeResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>classpath:/messages/basicInventoryMessages</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="blBasicInventoryDao" class="org.broadleafcommerce.inventory.basic.dao.BasicInventoryDaoImpl"/>
+    <bean id="blBasicInventoryService" class="org.broadleafcommerce.inventory.basic.service.BasicInventoryServiceImpl"/>
+    
 </beans>

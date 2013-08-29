@@ -25,7 +25,7 @@ public class BasicInventoryContainerImpl implements BasicInventoryContainer {
 
     @Column(name = "BASIC_INVENTORY_QTY_AVAIL")
     @AdminPresentation(friendlyName = "SkuImpl_Sku_BasicInventoryAvailable",
-            order = 1001,
+            order = 1010,
             tab = ProductImpl.Presentation.Tab.Name.Inventory,
             tabOrder = ProductImpl.Presentation.Tab.Order.Inventory,
             group = ProductImpl.Presentation.Group.Name.Inventory,
