@@ -37,11 +37,22 @@ public class BasicInventoryServiceImpl implements BasicInventoryService {
     @Resource(name = "blCatalogService")
     protected CatalogService catalogService;
 
+    protected boolean checkBasicAvailablility(Sku sku) {
+        Boolean available = sku.isAvailable();
+        if (available == null) {
+            available = true;
+        }
+        if (sku != null && available && sku.isActive()) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     @Transactional("blTransactionManager")
     public Integer retrieveQuantityAvailable(Long skuId) {
         Sku sku = catalogService.findSkuById(skuId);
-        if (sku != null && sku.isAvailable() && sku.isActive()) {
+        if (checkBasicAvailablility(sku)) {
             if (sku.getInventoryType() == null || sku.getInventoryType().equals(InventoryType.NONE)) {
                 return null;
             }
@@ -57,7 +68,7 @@ public class BasicInventoryServiceImpl implements BasicInventoryService {
         HashMap<Long, Integer> out = new HashMap<Long, Integer>();
         for (Long key : skuIds) {
             Sku sku = catalogService.findSkuById(key);
-            if (sku != null && sku.isAvailable() && sku.isActive()) {
+            if (checkBasicAvailablility(sku)) {
                 if (InventoryType.BASIC.equals(sku.getInventoryType())) {
                     out.put(key, inventories.get(key));
                 } else if (sku.getInventoryType() == null || InventoryType.NONE.equals(sku.getInventoryType())) {
@@ -80,7 +91,7 @@ public class BasicInventoryServiceImpl implements BasicInventoryService {
             throw new IllegalArgumentException("Quantity " + quantity + " is not valid. Must be greater than zero.");
         }
         Sku sku = catalogService.findSkuById(skuId);
-        if (sku != null && sku.isAvailable() && sku.isActive()) {
+        if (checkBasicAvailablility(sku)) {
             if (InventoryType.BASIC.equals(sku.getInventoryType())) {
                 Integer quantityAvailable = retrieveQuantityAvailable(skuId);
                 if (quantityAvailable == null || quantity <= quantityAvailable) {
@@ -100,7 +111,7 @@ public class BasicInventoryServiceImpl implements BasicInventoryService {
             throw new IllegalArgumentException("Quantity " + quantity + " is not valid. Must be greater than zero.");
         }
         Sku sku = catalogService.findSkuById(skuId);
-        if (sku.isAvailable() && sku.isActive() && InventoryType.BASIC.equals(sku.getInventoryType())) {
+        if (checkBasicAvailablility(sku) && InventoryType.BASIC.equals(sku.getInventoryType())) {
             if (sku instanceof BasicInventoryContainer) {
                 BasicInventoryContainer container = (BasicInventoryContainer) sku;
                 Integer inventoryAvailable = retrieveQuantityAvailable(skuId);

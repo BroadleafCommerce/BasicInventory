@@ -31,6 +31,12 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+/**
+ * Workflow activity to check availability of inventory during cart operations.
+ * 
+ * @author Kelly Tisdell
+ *
+ */
 public class CheckBasicInventoryAvailabilityActivity extends BaseActivity<ProcessContext<CartOperationRequest>> {
 
     @Resource(name = "blBasicInventoryService")

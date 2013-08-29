@@ -18,6 +18,12 @@ package org.broadleafcommerce.inventory.basic.dao;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Reads inventory from the database.
+ * 
+ * @author Kelly Tisdell
+ *
+ */
 public interface BasicInventoryDao {
 
     public int readInventory(Long skuId);

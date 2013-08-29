@@ -19,6 +19,18 @@ package org.broadleafcommerce.inventory.basic.service;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This basic inventory service checks and adjusts the current inventory of a sku. All Skus will be considered 
+ * generally unavailable from an inventory perspective if Sku.isAvaliable() returns false or if Sku.isActive() returns 
+ * false.
+ * 
+ * Skus with an InventoryType of null or 'NONE' will be considered undefined from an inventory perspective, and will generally 
+ * be considered available.  However, a request for available quantities of Skus with a null or 'NONE' inventory type will 
+ * return null (as the sku is available but no inventory strategy is defined).
+ * 
+ * @author Kelly Tisdell
+ *
+ */
 public interface BasicInventoryService {
 
     /**

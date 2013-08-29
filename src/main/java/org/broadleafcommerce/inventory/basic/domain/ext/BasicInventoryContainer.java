@@ -15,6 +15,12 @@
  */
 package org.broadleafcommerce.inventory.basic.domain.ext;
 
+/**
+ * This interface and its implementation will get woven with the SkuImpl at runtime.
+ * It provides a container for holding basic inventory availability data.
+ * @author Kelly Tisdell
+ *
+ */
 public interface BasicInventoryContainer {
 
     public void setQuantityAvailable(Integer quantityAvailable);
