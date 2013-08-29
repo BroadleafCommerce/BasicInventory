@@ -1,4 +1,4 @@
 basic-inventory
 ===============
 
-Basic inventory moduel
+Broadleaf Commerce Open Source Basic Inventory Module

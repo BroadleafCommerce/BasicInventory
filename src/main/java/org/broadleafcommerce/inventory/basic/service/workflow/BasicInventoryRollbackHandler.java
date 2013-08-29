@@ -18,6 +18,7 @@ package org.broadleafcommerce.inventory.basic.service.workflow;
 
 import org.broadleafcommerce.common.logging.SupportLogManager;
 import org.broadleafcommerce.common.logging.SupportLogger;
+import org.broadleafcommerce.core.checkout.service.workflow.CheckoutSeed;
 import org.broadleafcommerce.core.workflow.Activity;
 import org.broadleafcommerce.core.workflow.ProcessContext;
 import org.broadleafcommerce.core.workflow.state.RollbackFailureException;
@@ -35,7 +36,7 @@ import javax.annotation.Resource;
  * @author Kelly Tisdell
  *
  */
-public class BasicInventoryRollbackHandler implements RollbackHandler {
+public class BasicInventoryRollbackHandler implements RollbackHandler<CheckoutSeed> {
 
     private static final SupportLogger LOG = SupportLogManager.getLogger("broadleaf-basic-inventory", BasicInventoryRollbackHandler.class);
     
@@ -47,7 +48,8 @@ public class BasicInventoryRollbackHandler implements RollbackHandler {
     protected BasicInventoryService inventoryService;
 
     @Override
-    public void rollbackState(Activity<? extends ProcessContext> activity, ProcessContext processContext, Map<String, Object> stateConfiguration) throws RollbackFailureException {
+    public void rollbackState(Activity<? extends ProcessContext<CheckoutSeed>> activity, ProcessContext<CheckoutSeed> processContext, Map<String, Object> stateConfiguration)
+            throws RollbackFailureException {
 
         if (stateConfiguration == null ||
                 (stateConfiguration.get(ROLLBACK_BLC_INVENTORY_DECREMENTED) == null &&
@@ -66,8 +68,12 @@ public class BasicInventoryRollbackHandler implements RollbackHandler {
             try {
                 inventoryService.incrementInventory(inventoryToIncrement);
             } catch (Exception ex) {
-                LOG.error("An unexpected error occured in the error handler of the checkout workflow trying to compensate for inventory. This happend for order ID: " +
+                RollbackFailureException rfe = new RollbackFailureException("An unexpected error occured in the error handler of the checkout workflow trying to compensate for inventory. This happend for order ID: " +
                         orderId + ". This should be corrected manually!", ex);
+                rfe.setActivity(activity);
+                rfe.setProcessContext(processContext);
+                rfe.setStateItems(stateConfiguration);
+                throw rfe;
             }
         }
 
@@ -78,10 +84,21 @@ public class BasicInventoryRollbackHandler implements RollbackHandler {
                 inventoryService.decrementInventory(inventoryToDecrement);
             } catch (BasicInventoryUnavailableException e) {
                 //This is an awkward, unlikely state.  I just added some inventory, but something happened, and I want to remove it, but it's already gone!
-                LOG.error("While trying roll back (decrement) inventory, we found that there was none left decrement.", e);
+                RollbackFailureException rfe = new RollbackFailureException("While trying roll back (decrement) inventory, we found that there was none left decrement.", e);
+                rfe.setActivity(activity);
+                rfe.setProcessContext(processContext);
+                rfe.setStateItems(stateConfiguration);
+                throw rfe;
             } catch (RuntimeException ex) {
                 LOG.error("An unexpected error occured in the error handler of the checkout workflow trying to compensate for inventory. This happend for order ID: " +
                         orderId + ". This should be corrected manually!", ex);
+                RollbackFailureException rfe = new RollbackFailureException("An unexpected error occured in the error handler of the checkout workflow " +
+                        "trying to compensate for inventory. This happend for order ID: " +
+                        orderId + ". This should be corrected manually!", ex);
+                rfe.setActivity(activity);
+                rfe.setProcessContext(processContext);
+                rfe.setStateItems(stateConfiguration);
+                throw rfe;
             }
         }
     }

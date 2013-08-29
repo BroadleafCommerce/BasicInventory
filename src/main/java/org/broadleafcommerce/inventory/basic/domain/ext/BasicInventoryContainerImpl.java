@@ -16,11 +16,20 @@
 
 package org.broadleafcommerce.inventory.basic.domain.ext;
 
+import org.broadleafcommerce.common.presentation.AdminPresentation;
+import org.broadleafcommerce.core.catalog.domain.ProductImpl;
+
 import javax.persistence.Column;
 
 public class BasicInventoryContainerImpl implements BasicInventoryContainer {
 
-    @Column(name = "BLC_QUANTITY_AVAILABLE")
+    @Column(name = "BASIC_INVENTORY_QTY_AVAIL")
+    @AdminPresentation(friendlyName = "SkuImpl_Sku_BasicInventoryAvailable",
+            order = 1001,
+            tab = ProductImpl.Presentation.Tab.Name.Inventory,
+            tabOrder = ProductImpl.Presentation.Tab.Order.Inventory,
+            group = ProductImpl.Presentation.Group.Name.Inventory,
+            groupOrder = ProductImpl.Presentation.Group.Order.Inventory)
     protected Integer basicQuantityAvailable = 0;
 
     @Override

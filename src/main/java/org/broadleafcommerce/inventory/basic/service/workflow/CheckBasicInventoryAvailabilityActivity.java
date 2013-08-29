@@ -19,9 +19,9 @@ package org.broadleafcommerce.inventory.basic.service.workflow;
 import org.broadleafcommerce.core.order.domain.BundleOrderItem;
 import org.broadleafcommerce.core.order.domain.DiscreteOrderItem;
 import org.broadleafcommerce.core.order.domain.OrderItem;
-import org.broadleafcommerce.core.order.service.workflow.CartOperationContext;
 import org.broadleafcommerce.core.order.service.workflow.CartOperationRequest;
 import org.broadleafcommerce.core.workflow.BaseActivity;
+import org.broadleafcommerce.core.workflow.ProcessContext;
 import org.broadleafcommerce.inventory.basic.service.BasicInventoryService;
 import org.broadleafcommerce.inventory.basic.service.BasicInventoryUnavailableException;
 
@@ -31,13 +31,13 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-public class CheckBasicInventoryAvailabilityActivity extends BaseActivity<CartOperationContext> {
+public class CheckBasicInventoryAvailabilityActivity extends BaseActivity<ProcessContext<CartOperationRequest>> {
 
     @Resource(name = "blBasicInventoryService")
     protected BasicInventoryService inventoryService;
 
     @Override
-    public CartOperationContext execute(CartOperationContext context) throws Exception {
+    public ProcessContext<CartOperationRequest> execute(ProcessContext<CartOperationRequest> context) throws Exception {
 
         CartOperationRequest request = context.getSeedData();
         HashMap<Long, Integer> skuQuantities = new HashMap<Long, Integer>();

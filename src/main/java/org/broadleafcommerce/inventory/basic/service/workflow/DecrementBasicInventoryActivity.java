@@ -16,12 +16,12 @@
 
 package org.broadleafcommerce.inventory.basic.service.workflow;
 
-import org.broadleafcommerce.core.checkout.service.workflow.CheckoutContext;
 import org.broadleafcommerce.core.checkout.service.workflow.CheckoutSeed;
 import org.broadleafcommerce.core.order.domain.BundleOrderItem;
 import org.broadleafcommerce.core.order.domain.DiscreteOrderItem;
 import org.broadleafcommerce.core.order.domain.OrderItem;
 import org.broadleafcommerce.core.workflow.BaseActivity;
+import org.broadleafcommerce.core.workflow.ProcessContext;
 import org.broadleafcommerce.core.workflow.state.ActivityStateManagerImpl;
 import org.broadleafcommerce.inventory.basic.service.BasicInventoryService;
 
@@ -37,7 +37,7 @@ import javax.annotation.Resource;
  * @author Kelly Tisdell
  *
  */
-public class DecrementBasicInventoryActivity extends BaseActivity<CheckoutContext> {
+public class DecrementBasicInventoryActivity extends BaseActivity<ProcessContext<CheckoutSeed>> {
 
     @Resource(name = "blBasicInventoryService")
     protected BasicInventoryService inventoryService;
@@ -48,7 +48,7 @@ public class DecrementBasicInventoryActivity extends BaseActivity<CheckoutContex
     }
 
     @Override
-    public CheckoutContext execute(CheckoutContext context) throws Exception {
+    public ProcessContext<CheckoutSeed> execute(ProcessContext<CheckoutSeed> context) throws Exception {
 
         CheckoutSeed seed = context.getSeedData();
         List<OrderItem> orderItems = seed.getOrder().getOrderItems();
