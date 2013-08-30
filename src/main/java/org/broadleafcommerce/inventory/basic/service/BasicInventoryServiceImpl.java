@@ -170,4 +170,13 @@ public class BasicInventoryServiceImpl implements BasicInventoryService {
             incrementInventory(key, quantity);
         }
     }
+
+    public void setInventoryDao(BasicInventoryDao inventoryDao) {
+        this.inventoryDao = inventoryDao;
+    }
+
+    public void setCatalogService(CatalogService catalogService) {
+        this.catalogService = catalogService;
+    }
+
 }

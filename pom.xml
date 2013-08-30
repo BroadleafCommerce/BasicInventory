@@ -218,12 +218,18 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>5.9</version>
-            <type>jar</type>
-            <classifier>jdk15</classifier>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
             <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>
