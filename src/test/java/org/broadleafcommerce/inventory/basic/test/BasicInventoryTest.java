@@ -288,6 +288,21 @@ public class BasicInventoryTest {
         EasyMock.verify(catalogService);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidDecrementQuantity() throws BasicInventoryUnavailableException {
+        inventoryService.decrementInventory(1L, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidIncrementQuantity() {
+        inventoryService.incrementInventory(1L, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidAvailabilityCheckQuantity() {
+        inventoryService.isAvailable(1L, 0);
+    }
+
     /*
      * We need to use this to create skus because we need to mock multiple interfaces.
      */
