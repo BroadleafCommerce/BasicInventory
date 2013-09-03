@@ -103,4 +103,7 @@ public class BasicInventoryRollbackHandler implements RollbackHandler<CheckoutSe
         }
     }
 
+    public void setInventoryService(BasicInventoryService service) {
+        this.inventoryService = service;
+    }
 }
