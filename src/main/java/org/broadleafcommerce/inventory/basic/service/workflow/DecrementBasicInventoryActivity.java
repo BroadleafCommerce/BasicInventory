@@ -100,4 +100,7 @@ public class DecrementBasicInventoryActivity extends BaseActivity<ProcessContext
 
     }
 
+    public void setInventoryService(BasicInventoryService service) {
+        this.inventoryService = service;
+    }
 }

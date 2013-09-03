@@ -90,7 +90,8 @@
                     <excludes>
                       <exclude>org/broadleafcommerce/inventory/basic/domain/**/*</exclude>
                       <exclude>org/broadleafcommerce/inventory/basic/dao/**/*</exclude>
-                      <exclude>org/broadleafcommerce/inventory/basic/service/*Exception.class</exclude>
+                      <exclude>org/broadleafcommerce/inventory/basic/**/*Exception.class</exclude>
+                      <exclude>org/broadleafcommerce/inventory/basic/service/BasicInventoryService.class</exclude>
                     </excludes>
                   </instrumentation>
                 </configuration>

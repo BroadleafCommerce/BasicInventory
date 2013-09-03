@@ -77,7 +77,7 @@ public class CheckBasicInventoryAvailabilityActivity extends BaseActivity<Proces
 
                 if (!quantityAvailable) {
                     String errorMessage = "Error: Sku with id of " + key + " does not have " +
-                            request.getItemRequest().getQuantity() + " items in available inventory.";
+                            request.getAddedOrderItem().getQuantity() + " items in available inventory.";
                     throw new BasicInventoryUnavailableException(errorMessage, key, skuQuantities.get(key), inventoryService.retrieveQuantityAvailable(key));
                 }
             }
@@ -86,4 +86,7 @@ public class CheckBasicInventoryAvailabilityActivity extends BaseActivity<Proces
         return context;
     }
 
+    public void setInventoryService(BasicInventoryService service) {
+        this.inventoryService = service;
+    }
 }

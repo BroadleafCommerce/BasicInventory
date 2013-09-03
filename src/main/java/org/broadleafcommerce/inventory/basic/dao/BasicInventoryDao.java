@@ -26,8 +26,20 @@ import java.util.Set;
  */
 public interface BasicInventoryDao {
 
+    /**
+     * Reads an inventory value by the id of the sku.
+     * 
+     * @param skuId
+     * @return
+     */
     public int readInventory(Long skuId);
 
+    /**
+     * Reads a number of inventory values by ids of skus.
+     * 
+     * @param skuIds
+     * @return
+     */
     public Map<Long, Integer> readInventory(Set<Long> skuIds);
 
 }
