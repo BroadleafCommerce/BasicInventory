@@ -73,9 +73,9 @@ public class DecrementBasicInventoryActivity extends BaseActivity<ProcessContext
                 for (DiscreteOrderItem discreteItem : discreteItems) {
                     Integer quantity = skuInventoryMap.get(discreteItem.getSku().getId());
                     if (quantity == null) {
-                        quantity = discreteItem.getQuantity();
+                        quantity = (discreteItem.getQuantity() * bundleItem.getQuantity());
                     } else {
-                        quantity += discreteItem.getQuantity();
+                        quantity += (discreteItem.getQuantity() * bundleItem.getQuantity());
                     }
                     skuInventoryMap.put(discreteItem.getSku().getId(), quantity);
                 }
